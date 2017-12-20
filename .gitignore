@@ -1,0 +1,11 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# other stuff
+input/*
+!input/README.md
+output/*
+!output/README.md
+notebooks/.ipynb_checkpoints/*
