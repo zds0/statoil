@@ -4,6 +4,7 @@ import os
 import time
 from operator import itemgetter
 
+import click
 import numpy as np
 import pandas as pd
 
@@ -15,20 +16,29 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def find_model(kind='best'):
+    all_files = os.listdir(os.path.join(THIS_DIR, '..', 'weights'))
+    all_files = [f for f in all_files if (
+        str(f).startswith('model_') and str(f).endswith('pth'))]
+
     if kind == 'best':
-        all_files = os.listdir(os.path.join(THIS_DIR, '..', 'weights'))
-        all_files = [f for f in all_files if (
-            str(f).startswith('model_') and str(f).endswith('pth'))]
         all_scores = [float(str(f)[23:-4]) for f in all_files]
         lowest_loc = min(enumerate(all_scores), key=itemgetter(1))[0]
         lowest_file = all_files[lowest_loc]
 
         return os.path.abspath(os.path.join(THIS_DIR, '..', 'weights', lowest_file))
+    else:
+        all_times = [str(f)[6:22] for f in all_files]
+        latest_loc = max(enumerate(all_times), key=itemgetter(1))[0]
+        latest_file = all_files[latest_loc]
+
+        return os.path.abspath(os.path.join(THIS_DIR, '..', 'weights', latest_file))
 
 
-def make_predictions():
+@click.command()
+@click.option('--kind', type=click.Choice(['best', 'recent']), default='best')
+def make_predictions(kind):
     # get model
-    model_file = find_model()
+    model_file = find_model(kind)
     net = torch.load(model_file)
 
     print('Predicting with ' + model_file)
@@ -89,7 +99,7 @@ def make_predictions():
 
     # save prediction file
     ts = time.strftime("%Y-%m-%d_%H-%M")
-    model_file = str(str(model_file).split('weights')[1]).replace('.pth', '').replace('\\', '')
+    model_file = str(str(model_file).split('weights')[1]).replace('.pth', '').replace('\\', '').replace('/', '')
     fname = 'subm_' + model_file + '_pred_' + ts + '.csv'
 
     df_pred.to_csv(os.path.join(THIS_DIR, '..', 'output', fname), index=False)
