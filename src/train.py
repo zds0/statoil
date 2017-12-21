@@ -7,7 +7,7 @@ import click
 import torch
 from numpy import mean
 from torch.autograd import Variable
-from torch.nn import CrossEntropyLoss
+from torch.nn import CrossEntropyLoss, BCELoss
 from torch.optim import Adam
 from tqdm import tqdm
 
@@ -38,7 +38,7 @@ def train_model(epochs, net, criterion, optimizer, early_stop):
 
         for i, dict_ in enumerate(train_loader):
             images = dict_['img']
-            target = dict_['target'].type(torch.FloatTensor).long()
+            target = dict_['target'].type(torch.FloatTensor)#.long()
 
             if USE_CUDA:
                 images = images.cuda()
@@ -47,7 +47,7 @@ def train_model(epochs, net, criterion, optimizer, early_stop):
             images = Variable(images)
             target = Variable(target)
 
-            output = net(images)
+            output = net(images).squeeze()
             loss = criterion(output, target)
             acc = accuracy(target.data, output.data)
             running_loss.update(loss.data[0])
@@ -59,7 +59,7 @@ def train_model(epochs, net, criterion, optimizer, early_stop):
 
         for i, dict_ in enumerate(val_loader):
             images = dict_['img']
-            target = dict_['target'].type(torch.FloatTensor).long()
+            target = dict_['target'].type(torch.FloatTensor)#.long()
 
             if USE_CUDA:
                 images = images.cuda()
@@ -68,7 +68,7 @@ def train_model(epochs, net, criterion, optimizer, early_stop):
             images = Variable(images)
             target = Variable(target)
 
-            output = net(images)
+            output = net(images).squeeze()
             val_loss = criterion(output, target)
             val_acc = accuracy(target.data, output.data)
             val_loss_meter.update(val_loss.data[0])
@@ -83,7 +83,7 @@ def train_model(epochs, net, criterion, optimizer, early_stop):
         print("[ loss: {:.4f} | acc: {:.4f} | vloss: {:.4f} | vacc: {:.4f} ]".format(
             running_loss.avg, running_accuracy.avg, val_loss_meter.avg, val_acc_meter.avg))
 
-    ts = time.strftime("%Y-%m-%d_%H:%M")
+    ts = time.strftime("%Y-%m-%d_%H-%M")
     vl = '_{:.5f}'.format(val_loss_meter.avg)
     fname = 'model_' + ts + vl + '.pth'
     torch.save(net, os.path.join(THIS_DIR, '..', 'weights', fname))
@@ -102,7 +102,8 @@ def main(epochs, early_stop):
     # if not USE_CUDA:
     #     epochs = 1 # for testing on laptop
 
-    criterion = CrossEntropyLoss()
+    # Binary cross entropy: http://pytorch.org/docs/nn.html#bceloss
+    criterion = BCELoss()
 
     # adding weight_decay is a form of L2 regularization.
     # See: https://discuss.pytorch.org/t/simple-l2-regularization/139
