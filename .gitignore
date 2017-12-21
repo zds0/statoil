@@ -8,4 +8,7 @@ input/*
 !input/README.md
 output/*
 !output/README.md
+weights/*
+!weights/README.md
 notebooks/.ipynb_checkpoints/*
+.vscode/*
