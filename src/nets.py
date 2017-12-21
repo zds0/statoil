@@ -40,8 +40,9 @@ class Net2(nn.Module):
         self.pool = nn.MaxPool2d(2, 2)
         self.fc1 = nn.Linear(2048, 128)
         self.fc2 = nn.Linear(128, 84)
-        self.fc3 = nn.Linear(84, 2)
+        self.fc3 = nn.Linear(84, 1)
         self.drp = nn.Dropout(0.3)
+        self.sig = nn.Sigmoid()
 
     def forward(self, x):
         x = self.batch(x)
@@ -57,4 +58,5 @@ class Net2(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
+        x = self.sig(x)
         return x
