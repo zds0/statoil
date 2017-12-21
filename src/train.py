@@ -1,29 +1,35 @@
 """Perform training."""
 
-import click
-from numpy import mean
-from tqdm import tqdm
+import os
+import time
 
+import click
 import torch
-from data import prep_data
-from nets import Net, Net2
+from numpy import mean
 from torch.autograd import Variable
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
+from tqdm import tqdm
+
+from data import prep_data
+from nets import Net, Net2
 from utils import MetricMeter, accuracy
 
 # settings
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 BATCH_SIZE = 32
 THREADS = 4 # for the DataLoaders
 USE_CUDA = True if torch.cuda.is_available() else False
 
-# DataLoaders
-train_loader, val_loader = prep_data(BATCH_SIZE, THREADS, USE_CUDA)
-
 # training
 def train_model(epochs, net, criterion, optimizer, early_stop):
+    """Perform the training."""
+    # DataLoaders
+    train_loader, val_loader = prep_data(BATCH_SIZE, THREADS, USE_CUDA)
+
     net.train()
     loss_list = []
+
     for epoch in tqdm(range(epochs), total=epochs):
         running_loss = MetricMeter()
         running_accuracy = MetricMeter()
@@ -70,15 +76,19 @@ def train_model(epochs, net, criterion, optimizer, early_stop):
 
         # hacky early stopping...
         loss_list.append(val_loss_meter.avg)
-        if (mean(loss_list[-8:]) < mean(loss_list[-4:])) and (len(loss_list) > 8) and early_stop:
+        if (mean(loss_list[-10:]) < mean(loss_list[-4:])) and (len(loss_list) > 10) and early_stop:
             print('Validation loss no longer decreasing... stopping training.')
             break
 
-        print("[ loss: {:.4f} | acc: {:.4f} | vloss: {:.4f} | vacc: {:.4f} ] ".format(
+        print("[ loss: {:.4f} | acc: {:.4f} | vloss: {:.4f} | vacc: {:.4f} ]".format(
             running_loss.avg, running_accuracy.avg, val_loss_meter.avg, val_acc_meter.avg))
 
+    ts = time.strftime("%Y-%m-%d_%H:%M")
+    vl = '_{:.5f}'.format(val_loss_meter.avg)
+    fname = 'model_' + ts + vl + '.pth'
+    torch.save(net, os.path.join(THIS_DIR, '..', 'weights', fname))
 
-# main
+
 @click.command()
 @click.option('--epochs', type=int, default=50)
 @click.option('--early_stop', type=bool, default=True)
@@ -89,8 +99,8 @@ def main(epochs, early_stop):
     if USE_CUDA:
         net.cuda()
 
-    if not USE_CUDA:
-        epochs = 1 # for testing on laptop
+    # if not USE_CUDA:
+    #     epochs = 1 # for testing on laptop
 
     criterion = CrossEntropyLoss()
 
