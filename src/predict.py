@@ -35,7 +35,7 @@ def find_model(kind='best'):
 
 
 @click.command()
-@click.option('--kind', type=click.Choice(['best', 'recent']), default='best')
+@click.option('--kind', type=click.Choice(['best', 'recent']), default='recent')
 def make_predictions(kind):
     # get model
     model_file = find_model(kind)
