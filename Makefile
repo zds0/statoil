@@ -1,4 +1,4 @@
-.PHONY: clean train submission
+.PHONY: clean train prediction submission
 
 clean: ## remove Python file artifacts
 	find . -name '*.pyc' -exec rm -f {} +
@@ -9,5 +9,8 @@ clean: ## remove Python file artifacts
 train: clean
 	python src/train.py
 
-submission: train
+prediction: train
 	python src/predict.py
+
+submission: prediction
+	python src/submit.py
