@@ -41,7 +41,8 @@ def prep_data(batch_size, threads, use_cuda):
     train_ds = ImageDataset(train_ds, include_target=True, u=0.5,
                             X_transform=[random_horizontal_flip,
                                          random_vertical_flip,
-                                         random_crop])
+                                         random_crop,
+                                         rotate])
 
     train_loader = DataLoader(
         train_ds,
@@ -155,16 +156,16 @@ def random_crop(img, u=0.5):
     return img
 
 
-def rotate(image, angle, center=None, scale=1.0, u=0.5):
+def rotate(img, angle=randint(-1, 1), center=None, scale=1.0, u=0.5):
     """Flip coin and perform rotation."""
     if np.random.random() < u:
-        (h, w) = image.shape[:2]
+        (h, w) = img.shape[:2]
 
         if center is None:
             center = (w / 2, h / 2)
 
         # perform the rotation
         M = cv2.getRotationMatrix2D(center, angle, scale)
-        rotated = cv2.warpAffine(image, M, (w, h))
+        img = cv2.warpAffine(img, M, (w, h))
 
-    return rotated
+    return img
