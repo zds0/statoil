@@ -1,0 +1,13 @@
+click==6.7
+kaggle-cli==0.12.13
+matplotlib==2.1.1
+numpy==1.13.3
+opencv==3.3.1
+pandas==0.21.1
+python-dotenv==0.7.1
+scikit-learn==0.19.1
+scipy==1.0.0
+skorch==0.1.0.post1
+torch==0.3.0b0+591e73e
+torchvision==0.2.0
+tqdm==4.19.5

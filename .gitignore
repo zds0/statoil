@@ -12,3 +12,4 @@ weights/*
 !weights/README.md
 notebooks/.ipynb_checkpoints/*
 .vscode/*
+.env
