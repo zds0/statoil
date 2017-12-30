@@ -18,6 +18,9 @@ def find_submission(kind='best', ensemble=False, topx=3):
     all_files = [f for f in all_files if (
         str(f).startswith('subm_') and str(f).endswith('csv'))]
 
+    # non-ensembled files only
+    all_files = [f for f in all_files if 'ensem' not in f]
+
     if not ensemble:
         if kind == 'best':
             all_scores = [float(str(f)[28:35]) for f in all_files]
