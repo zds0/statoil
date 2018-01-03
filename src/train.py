@@ -12,7 +12,7 @@ from torch.optim import Adam
 from tqdm import tqdm
 
 from data import prep_data
-from nets import Net, Net2
+from nets import Net, Net2, VGG
 from utils import MetricMeter, accuracy
 
 # settings
@@ -94,7 +94,8 @@ def train_model(epochs, net, criterion, optimizer, early_stop):
 @click.option('--early_stop', type=bool, default=False)
 def main(epochs, early_stop):
     # net = Net()
-    net = Net2()
+    # net = Net2()
+    net = VGG('VGG11', n_classes=1, n_channels=2)
 
     if USE_CUDA:
         net.cuda()
