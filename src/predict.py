@@ -97,12 +97,17 @@ def make_predictions(kind):
             ignore_index=True
         )
 
+    # because we are using LogLoss, we are penalized for "over confidence"
+    # so, clip the predictions so not as close to 0 or 1
+    df_pred['is_iceberg'] = np.clip(df_pred['is_iceberg'], 0.015, 0.985)
+
     # save prediction file
     ts = time.strftime("%Y-%m-%d_%H-%M")
     model_file = str(str(model_file).split('weights')[1]).replace('.pth', '').replace('\\', '').replace('/', '')
     fname = 'subm_' + model_file + '_pred_' + ts + '.csv'
 
-    df_pred.to_csv(os.path.join(THIS_DIR, '..', 'output', fname), index=False)
+    df_pred.to_csv(os.path.join(THIS_DIR, '..', 'output', fname),
+                   index=False, float_format='%.6f')
 
 
 if __name__ == '__main__':

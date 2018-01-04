@@ -12,7 +12,7 @@ from torch.optim import Adam
 from tqdm import tqdm
 
 from data import prep_data
-from nets import Net, Net2
+from nets import Net, Net2, VGG
 from utils import MetricMeter, accuracy
 
 # settings
@@ -76,7 +76,7 @@ def train_model(epochs, net, criterion, optimizer, early_stop):
 
         # hacky early stopping...
         loss_list.append(val_loss_meter.avg)
-        if (mean(loss_list[-10:]) < mean(loss_list[-4:])) and (len(loss_list) > 10) and early_stop:
+        if (mean(loss_list[-12:-4]) < mean(loss_list[-4:])) and (len(loss_list) > 12) and early_stop:
             print('Validation loss no longer decreasing... stopping training.')
             break
 
@@ -91,10 +91,11 @@ def train_model(epochs, net, criterion, optimizer, early_stop):
 
 @click.command()
 @click.option('--epochs', type=int, default=50)
-@click.option('--early_stop', type=bool, default=True)
+@click.option('--early_stop', type=bool, default=False)
 def main(epochs, early_stop):
     # net = Net()
-    net = Net2()
+    # net = Net2()
+    net = VGG('VGG11', n_classes=1, n_channels=2)
 
     if USE_CUDA:
         net.cuda()
