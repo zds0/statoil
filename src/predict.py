@@ -106,7 +106,8 @@ def make_predictions(kind):
     model_file = str(str(model_file).split('weights')[1]).replace('.pth', '').replace('\\', '').replace('/', '')
     fname = 'subm_' + model_file + '_pred_' + ts + '.csv'
 
-    df_pred.to_csv(os.path.join(THIS_DIR, '..', 'output', fname), index=False)
+    df_pred.to_csv(os.path.join(THIS_DIR, '..', 'output', fname),
+                   index=False, float_format='%.6f')
 
 
 if __name__ == '__main__':
