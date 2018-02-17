@@ -35,7 +35,7 @@ class MetricMeter(object):
 
 def accuracy(y_true, y_pred):
     """Accuracy calc."""
-    # y_true = y_true.float()
-    # _, y_pred = torch.max(y_pred, dim=-1)
-    # return (y_pred.float() == y_true).float().mean()
-    return (np.round(y_pred) == y_true).float().mean()
+    y_true = y_true.float()
+    _, y_pred = torch.max(y_pred, dim=-1)
+    return (y_pred.float() == y_true).float().mean()
+    # return (np.round(y_pred) == y_true).float().mean()
